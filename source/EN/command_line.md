@@ -1,19 +1,19 @@
-A Guide to The Rails Command Line
-=================================
+The Rails Command Line
+======================
 
 Rails comes with every command line tool you'll need to
 
-* Create a Rails application
-* Generate models, controllers, database migrations, and unit tests
-* Start a development server
-* Experiment with objects through an interactive shell
-* Profile and benchmark your new creation
+After reading this guide, you will know:
+
+* How to create a Rails application.
+* How to generate models, controllers, database migrations, and unit tests.
+* How to start a development server.
+* How to experiment with objects through an interactive shell.
+* How to profile and benchmark your new creation.
 
 --------------------------------------------------------------------------------
 
 NOTE: This tutorial assumes you have basic Rails knowledge from reading the [Getting Started with Rails Guide](getting_started.html).
-
-WARNING. This Guide is based on Rails 3.2. Some of the code shown here will not work in earlier versions of Rails.
 
 Command Line Basics
 -------------------
@@ -134,10 +134,10 @@ Example:
     `rails generate controller CreditCard open debit credit close`
 
     Credit card controller with URLs like /credit_card/debit.
-        Controller:      app/controllers/credit_card_controller.rb
-        Functional Test: test/functional/credit_card_controller_test.rb
-        Views:           app/views/credit_card/debit.html.erb [...]
-        Helper:          app/helpers/credit_card_helper.rb
+        Controller: app/controllers/credit_card_controller.rb
+        Test:       test/controllers/credit_card_controller_test.rb
+        Views:      app/views/credit_card/debit.html.erb [...]
+        Helper:     app/helpers/credit_card_helper.rb
 ```
 
 The controller generator is expecting parameters in the form of `generate controller ControllerName action1 action2`. Let's make a `Greetings` controller with an action of **hello**, which will say something nice to us.
@@ -150,11 +150,11 @@ $ rails generate controller Greetings hello
      create    app/views/greetings
      create    app/views/greetings/hello.html.erb
      invoke  test_unit
-     create    test/functional/greetings_controller_test.rb
+     create    test/controllers/greetings_controller_test.rb
      invoke  helper
      create    app/helpers/greetings_helper.rb
      invoke    test_unit
-     create      test/unit/helpers/greetings_helper_test.rb
+     create      test/helpers/greetings_helper_test.rb
      invoke  assets
      invoke    coffee
      create      app/assets/javascripts/greetings.js.coffee
@@ -223,9 +223,10 @@ $ rails generate scaffold HighScore game:string score:integer
     create    db/migrate/20120528060026_create_high_scores.rb
     create    app/models/high_score.rb
     invoke    test_unit
-    create      test/unit/high_score_test.rb
+    create      test/models/high_score_test.rb
     create      test/fixtures/high_scores.yml
-     route  resources :high_scores
+    invoke  resource_route
+     route    resources :high_scores
     invoke  scaffold_controller
     create    app/controllers/high_scores_controller.rb
     invoke    erb
@@ -236,11 +237,11 @@ $ rails generate scaffold HighScore game:string score:integer
     create      app/views/high_scores/new.html.erb
     create      app/views/high_scores/_form.html.erb
     invoke    test_unit
-    create      test/functional/high_scores_controller_test.rb
+    create      test/controllers/high_scores_controller_test.rb
     invoke    helper
     create      app/helpers/high_scores_helper.rb
     invoke      test_unit
-    create        test/unit/helpers/high_scores_helper_test.rb
+    create        test/helpers/high_scores_helper_test.rb
     invoke  assets
     invoke    coffee
     create      app/assets/javascripts/high_scores.js.coffee
@@ -327,7 +328,7 @@ $ rails generate model Oops
       create    db/migrate/20120528062523_create_oops.rb
       create    app/models/oops.rb
       invoke    test_unit
-      create      test/unit/oops_test.rb
+      create      test/models/oops_test.rb
       create      test/fixtures/oops.yml
 ```
 ```bash
@@ -336,7 +337,7 @@ $ rails destroy model Oops
       remove    db/migrate/20120528062523_create_oops.rb
       remove    app/models/oops.rb
       invoke    test_unit
-      remove      test/unit/oops_test.rb
+      remove      test/models/oops_test.rb
       remove      test/fixtures/oops.yml
 ```
 
@@ -480,25 +481,19 @@ The `tmp:` namespaced tasks will help you clear the `Rails.root/tmp` directory:
 * `rake secret` will give you a pseudo-random key to use for your session secret.
 * `rake time:zones:all` lists all the timezones Rails knows about.
 
-### Writing Rake Tasks
+### Custom Rake Tasks
 
-If you have (or want to write) any automation scripts outside your app (data import, checks, etc), you can make them as rake tasks. It's easy.
-
-INFO: [Complete guide about how to write tasks](http://rake.rubyforge.org/files/doc/rakefile_rdoc.html) is available in the official documentation.
-
-Tasks should be placed in `Rails.root/lib/tasks` and should have a `.rake` extension.
-
-Each task should be defined in next format (dependencies are optional):
+Custom rake tasks have a `.rake` extension and are placed in `Rails.root/lib/tasks`.
 
 ```ruby
 desc "I am short, but comprehensive description for my cool task"
-task :task_name => [:prerequisite_task, :another_task_we_depend_on] do
+task task_name: [:prerequisite_task, :another_task_we_depend_on] do
   # All your magic here
   # Any valid Ruby code is allowed
 end
 ```
 
-If you need to pass parameters, you can use next format (both arguments and dependencies are optional):
+To pass arguments to your custom rake task:
 
 ```ruby
 task :task_name, [:arg_1] => [:pre_1, :pre_2] do |t, args|
@@ -509,7 +504,7 @@ end
 You can group tasks by placing them in namespaces:
 
 ```ruby
-namespace :do
+namespace :db do
   desc "This task does nothing"
   task :nothing do
     # Seriously, nothing
@@ -517,13 +512,13 @@ namespace :do
 end
 ```
 
-You can see your tasks to be listed by `rake -T` command. And, according to the examples above, you can invoke them as follows:
+Invocation of the tasks will look like:
 
 ```bash
 rake task_name
 rake "task_name[value 1]" # entire argument string should be quoted
-rake do:nothing
-```   
+rake db:nothing
+```
 
 NOTE: If your need to interact with your application models, perform database queries and so on, your task should depend on the `environment` task, which will load your application code.
 
@@ -569,14 +564,20 @@ We had to create the **gitapp** directory and initialize an empty git repository
 $ cat config/database.yml
 # PostgreSQL. Versions 8.2 and up are supported.
 #
-# Install the ruby-postgres driver:
-#   gem install ruby-postgres
-# On Mac OS X:
-#   gem install ruby-postgres -- --include=/usr/local/pgsql
+# Install the pg driver:
+#   gem install pg
+# On OS X with Homebrew:
+#   gem install pg -- --with-pg-config=/usr/local/bin/pg_config
+# On OS X with MacPorts:
+#   gem install pg -- --with-pg-config=/opt/local/lib/postgresql84/bin/pg_config
 # On Windows:
-#   gem install ruby-postgres
+#   gem install pg
 #       Choose the win32 build.
 #       Install PostgreSQL and put its /bin directory on your path.
+#
+# Configure Using Gemfile
+# gem 'pg'
+#
 development:
   adapter: postgresql
   encoding: unicode
@@ -591,28 +592,3 @@ development:
 It also generated some lines in our database.yml configuration corresponding to our choice of PostgreSQL for database.
 
 NOTE. The only catch with using the SCM options is that you have to make your application's directory first, then initialize your SCM, then you can run the `rails new` command to generate the basis of your app.
-
-### `server` with Different Backends
-
-Many people have created a large number of different web servers in Ruby, and many of them can be used to run Rails. Since version 2.3, Rails uses Rack to serve its webpages, which means that any webserver that implements a Rack handler can be used. This includes WEBrick, Mongrel, Thin, and Phusion Passenger (to name a few!).
-
-NOTE: For more details on the Rack integration, see [Rails on Rack](rails_on_rack.html).
-
-To use a different server, just install its gem, then use its name for the first parameter to `rails server`:
-
-```bash
-$ sudo gem install mongrel
-Building native extensions.  This could take a while...
-Building native extensions.  This could take a while...
-Successfully installed gem_plugin-0.2.3
-Successfully installed fastthread-1.0.1
-Successfully installed cgi_multipart_eof_fix-2.5.0
-Successfully installed mongrel-1.1.5
-...
-...
-Installing RDoc documentation for mongrel-1.1.5...
-$ rails server mongrel
-=> Booting Mongrel (use 'rails server webrick' to force WEBrick)
-=> Rails 3.1.0 application starting on http://0.0.0.0:3000
-...
-```
