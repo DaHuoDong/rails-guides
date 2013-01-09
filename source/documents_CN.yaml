@@ -23,7 +23,7 @@
     -
       name: Active Record 数据表关联
       url: association_basics.html
-      work_in_progress: true
+      work_in_progress: false
       contributor: sanatir
       description: This guide covers all the associations provided by Active Record.
     -
