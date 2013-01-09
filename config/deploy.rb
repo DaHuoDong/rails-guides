@@ -1,7 +1,7 @@
 set :application, "Rails Guides"
-set :domain, "guides.ruby-china.org"
+set :domain, "play.beansmile.com"
 set :use_sudo, false
-set :user, "ruby"
+set :user, "deploy"
 set :repository,  "./output"
 set :scm, :none
 
@@ -10,7 +10,7 @@ role :web, domain
 role :app, domain
 role :db,  domain, :primary => true 
 
-set :deploy_to, "/home/#{user}/www/rails-guides"
+set :deploy_to, "/var/www/rails_guides"
 set :deploy_via, :copy
 
 
