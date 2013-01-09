@@ -1,0 +1,98 @@
+h2. Active Record 关联
+
+这份指南中介绍了 Active Record 中的关联特性。阅读后你将能够知道：
+
+* 怎样声明 Active Record models 之间的关系
+* 怎样理解不同种类的 Active Record 关联
+* 怎样添加关联到你的 models 和使用它们
+
+endprologue.
+
+h3. 为什么要使用关联?
+
+为什么我们需要用在 models 之间使用关联呢？因为他们简化了常用的操作。举个例子，假设一个rails的应用程序中包含一个 Customer 的 model 和一个 Order 的 model，每个 customer 可以含有多个 orders。如果不使用关联，那么 model 的声明是这样的：
+
+<ruby>
+class Customer < ActiveRecord::Base
+end
+
+class Order < ActiveRecord::Base
+end
+</ruby>
+
+现在，假设我们需要为一个已存在的 customer 添加一个 order，我们需要这要做：
+
+<ruby>
+@order = Order.create(order_date: Time.now, customer_id: @customer.id)
+</ruby>
+
+或者我们想删除一个 customer 的时候同时确保删除它所有的 orders：
+
+<ruby>
+@orders = Order.where(customer_id: @customer.id)
+@orders.each do |order|
+  order.destroy
+end
+</ruby>
+
+有了 Active Record 关联，我们就可以通过声明关联的方法告诉 rails 这两个 model 存在某种关系，从而使代码更加简洁。下面是使用关联之后，用来建立customrs 和 orders 关系的代码：
+
+<ruby>
+class Customer < ActiveRecord::Base
+  has_many :orders, dependent: :destroy
+end
+
+class Order < ActiveRecord::Base
+  belongs_to :customer
+end
+</ruby>
+
+有了这样做设定之后，为某个用户创建订单就变得很容易：
+
+<ruby>
+@order = @customer.orders.create(order_date: Time.now)
+</ruby>
+
+更加容易的是删除某个用户和它所有的订单
+
+<ruby>
+@customer.destroy
+</ruby>
+
+下一部分，你将会想要学习到不同种类的关联，在这之后将会介绍使用这些关联的注意事项和技巧，最后一部分是 Rails 中这些关联的方法和选项的完整参考。
+
+h3. 关联的类型
+
+在 Rails 中，一个 _关联_ 是指两个 models 的建立的某种关系。这些关联是通过添加 <tt>macro_style</tt> 的方法实现的，所以你可以通过声明为 models 添加新的特性。例如，通过声明一个 model belongs_to 另外一个model
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
