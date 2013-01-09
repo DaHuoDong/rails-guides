@@ -6,6 +6,7 @@ tags
 .lock
 /.git*
 /.gitignore
+*.swo
 *.swp
 *.orig
 *~
