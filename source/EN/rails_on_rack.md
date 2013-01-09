@@ -1,12 +1,14 @@
 Rails on Rack
 =============
 
-This guide covers Rails integration with Rack and interfacing with other Rack components. By referring to this guide, you will be able to:
+This guide covers Rails integration with Rack and interfacing with other Rack components.
 
-* Create Rails Metal applications
-* Use Rack Middlewares in your Rails applications
-* Understand Action Pack's internal Middleware stack
-* Define a custom Middleware stack
+After reading this guide, you will know:
+
+* How to create Rails Metal applications.
+* How to use Rack Middlewares in your Rails applications.
+* Action Pack's internal Middleware stack.
+* How to define a custom Middleware stack.
 
 --------------------------------------------------------------------------------
 
@@ -15,7 +17,7 @@ WARNING: This guide assumes a working knowledge of Rack protocol and Rack concep
 Introduction to Rack
 --------------------
 
-bq. Rack provides a minimal, modular and adaptable interface for developing web applications in Ruby. By wrapping HTTP requests and responses in the simplest way possible, it unifies and distills the API for web servers, web frameworks, and software in between (the so-called middleware) into a single method call.
+Rack provides a minimal, modular and adaptable interface for developing web applications in Ruby. By wrapping HTTP requests and responses in the simplest way possible, it unifies and distills the API for web servers, web frameworks, and software in between (the so-called middleware) into a single method call.
 
 - [Rack API Documentation](http://rack.rubyforge.org/doc/)
 
@@ -58,7 +60,7 @@ Here's how it loads the middlewares:
 ```ruby
 def middleware
   middlewares = []
-  middlewares << [Rails::Rack::Debugger]  if options[:debugger]
+  middlewares << [Rails::Rack::Debugger] if options[:debugger]
   middlewares << [::Rack::ContentLength]
   Hash.new(middlewares)
 end
@@ -101,7 +103,7 @@ Action Dispatcher Middleware Stack
 
 Many of Action Dispatchers's internal components are implemented as Rack middlewares. `Rails::Application` uses `ActionDispatch::MiddlewareStack` to combine various internal and external middlewares to form a complete Rails Rack application.
 
-NOTE: `ActionDispatch::MiddlewareStack` is Rails' equivalent of `Rack::Builder`, but built for better flexibility and more features to meet Rails' requirements.
+NOTE: `ActionDispatch::MiddlewareStack` is Rails equivalent of `Rack::Builder`, but built for better flexibility and more features to meet Rails' requirements.
 
 ### Inspecting Middleware Stack
 
@@ -132,11 +134,11 @@ use ActionDispatch::Cookies
 use ActionDispatch::Session::CookieStore
 use ActionDispatch::Flash
 use ActionDispatch::ParamsParser
-use ActionDispatch::Head
+use Rack::Head
 use Rack::ConditionalGet
 use Rack::ETag
 use ActionDispatch::BestStandardsSupport
-run ApplicationName::Application.routes
+run MyApp::Application.routes
 ```
 
 Purpose of each of this middlewares is explained in the [Internal Middlewares](#internal-middleware-stack) section.
@@ -162,8 +164,8 @@ You can add a new middleware to the middleware stack using any of the following 
 config.middleware.use Rack::BounceFavicon
 
 # Add Lifo::Cache after ActiveRecord::QueryCache.
-# Pass { :page_cache => false } argument to Lifo::Cache.
-config.middleware.insert_after ActiveRecord::QueryCache, Lifo::Cache, :page_cache => false
+# Pass { page_cache: false } argument to Lifo::Cache.
+config.middleware.insert_after ActiveRecord::QueryCache, Lifo::Cache, page_cache: false
 ```
 
 #### Swapping a Middleware
@@ -227,7 +229,7 @@ Much of Action Controller's functionality is implemented as Middlewares. The fol
 
  **`Rack::Lock`**
 
-* Sets `env["rack.multithread"]` flag to `true` and wraps the application within a Mutex.
+* Sets `env["rack.multithread"]` flag to `false` and wraps the application within a Mutex.
 
  **`ActiveSupport::Cache::Strategy::LocalCache::Middleware`**
 

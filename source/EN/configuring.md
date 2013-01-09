@@ -1,10 +1,12 @@
 Configuring Rails Applications
 ==============================
 
-This guide covers the configuration and initialization features available to Rails applications. By referring to this guide, you will be able to:
+This guide covers the configuration and initialization features available to Rails applications.
 
-* Adjust the behavior of your Rails applications
-* Add additional code to be run at application start time
+After reading this guide, you will know:
+
+* How to adjust the behavior of your Rails applications.
+* How to add additional code to be run at application start time.
 
 --------------------------------------------------------------------------------
 
@@ -37,7 +39,7 @@ config.filter_parameters += [:password]
 This is a setting for Rails itself. If you want to pass settings to individual Rails components, you can do so via the same `config` object in `config/application.rb`:
 
 ```ruby
-config.active_record.observers = [:hotel_observer, :review_observer]
+config.active_record.schema_format = :ruby
 ```
 
 Rails will use that particular setting to configure Active Record.
@@ -55,14 +57,6 @@ These configuration methods are to be called on a `Rails::Railtie` object, such 
     ```
 
 * `config.asset_host` sets the host for the assets. Useful when CDNs are used for hosting assets, or when you want to work around the concurrency constraints builtin in browsers using different domain aliases. Shorter version of `config.action_controller.asset_host`.
-
-* `config.asset_path` lets you decorate asset paths. This can be a callable, a string, or be `nil` which is the default. For example, the normal path for `blog.js` would be `/javascripts/blog.js`, let that absolute path be `path`. If `config.asset_path` is a callable, Rails calls it when generating asset paths passing `path` as argument. If `config.asset_path` is a string, it is expected to be a `sprintf` format string with a `%s` where `path` will get inserted. In either case, Rails outputs the decorated path. Shorter version of `config.action_controller.asset_path`.
-
-    ```ruby
-    config.asset_path = proc { |path| "/blog/public#{path}" }
-    ```
-
-NOTE. The `config.asset_path` configuration is ignored if the asset pipeline is enabled, which is the default.
 
 * `config.autoload_once_paths` accepts an array of paths from which Rails will autoload constants that won't be wiped per request. Relevant if `config.cache_classes` is false, which is the case in development mode by default. Otherwise, all autoloading happens only once. All elements of this array must also be in `autoload_paths`. Default is an empty array.
 
@@ -109,19 +103,15 @@ NOTE. The `config.asset_path` configuration is ignored if the asset pipeline is 
 
 * `config.log_level` defines the verbosity of the Rails logger. This option defaults to `:debug` for all modes except production, where it defaults to `:info`.
 
-* `config.log_tags` accepts a list of methods that respond to `request` object. This makes it easy to tag log lines with debug information like subdomain and request id -- both very helpful in debugging multi-user production applications.
+* `config.log_tags` accepts a list of methods that respond to `request` object. This makes it easy to tag log lines with debug information like subdomain and request id — both very helpful in debugging multi-user production applications.
 
-* `config.logger` accepts a logger conforming to the interface of Log4r or the default Ruby `Logger` class. Defaults to an instance of `ActiveSupport::BufferedLogger`, with auto flushing off in production mode.
+* `config.logger` accepts a logger conforming to the interface of Log4r or the default Ruby `Logger` class. Defaults to an instance of `ActiveSupport::Logger`, with auto flushing off in production mode.
 
 * `config.middleware` allows you to configure the application's middleware. This is covered in depth in the [Configuring Middleware](#configuring-middleware) section below.
 
-* `config.queue` configures a different queue implementation for the application. Defaults to `ActiveSupport::SynchronousQueue`. Note that, if the default queue is changed, the default `queue_consumer` is not going to be initialized, it is up to the new queue implementation to handle starting and shutting down its own consumer(s).
-
-* `config.queue_consumer` configures a different consumer implementation for the default queue. Defaults to `ActiveSupport::ThreadedQueueConsumer`.
-
 * `config.reload_classes_only_on_change` enables or disables reloading of classes only when tracked files change. By default tracks everything on autoload paths and is set to true. If `config.cache_classes` is true, this option is ignored.
 
-* `config.secret_token` used for specifying a key which allows sessions for the application to be verified against a known secure key to prevent tampering. Applications get `config.secret_token` initialized to a random key in `config/initializers/secret_token.rb`.
+* `config.secret_key_base` used for specifying a key which allows sessions for the application to be verified against a known secure key to prevent tampering. Applications get `config.secret_key_base` initialized to a random key in `config/initializers/secret_token.rb`.
 
 * `config.serve_static_assets` configures Rails itself to serve static assets. Defaults to true, but in the production environment is turned off as the server software (e.g. Nginx or Apache) used to run the application should serve static assets instead. Unlike the default setting set this to true when running (absolutely not recommended!) or testing your app in production mode using WEBrick. Otherwise you won´t be able use page caching and requests for files that exist regularly under the public directory will anyway hit your Rails app.
 
@@ -140,8 +130,6 @@ NOTE. The `config.asset_path` configuration is ignored if the asset pipeline is 
 * `config.whiny_nils` enables or disables warnings when a certain set of methods are invoked on `nil` and it does not respond to them. Defaults to true in development and test environments.
 
 ### Configuring Assets
-
-Rails 3.1, by default, is set up to use the `sprockets` gem to manage assets within an application. This gem concatenates and compresses assets in order to make serving them much less painful.
 
 * `config.assets.enabled` a flag that controls whether the asset pipeline is enabled. It is explicitly initialized in `config/application.rb`.
 
@@ -171,7 +159,7 @@ Rails 3.1, by default, is set up to use the `sprockets` gem to manage assets wit
 
 ### Configuring Generators
 
-Rails 3 allows you to alter what generators are used with the `config.generators` method. This method takes a block:
+Rails allows you to alter what generators are used with the `config.generators` method. This method takes a block:
 
 ```ruby
 config.generators do |g|
@@ -282,11 +270,9 @@ config.middleware.delete ActionDispatch::BestStandardsSupport
 
 * `config.active_record.lock_optimistically` controls whether Active Record will use optimistic locking and is true by default.
 
-* `config.active_record.whitelist_attributes` will create an empty whitelist of attributes available for mass-assignment security for all models in your app.
-
 * `config.active_record.auto_explain_threshold_in_seconds` configures the threshold for automatic EXPLAINs (`nil` disables this feature). Queries exceeding the threshold get their query plan logged. Default is 0.5 in development mode.
 
-* `config.active_record.mass_assignment_sanitizer` will determine the strictness of the mass assignment sanitization within Rails. Defaults to `:strict`. In this mode, mass assigning any non-`attr_accessible` attribute in a `create` or `update_attributes` call will raise an exception. Setting this option to `:logger` will only print to the log file when an attribute is being assigned and will not raise an exception.
+* +config.active_record.cache_timestamp_format+ controls the format of the timestamp value in the cache key. Default is +:number+.
 
 The MySQL adapter adds one additional configuration option:
 
@@ -302,13 +288,9 @@ The schema dumper adds one additional configuration option:
 
 * `config.action_controller.asset_host` sets the host for the assets. Useful when CDNs are used for hosting assets rather than the application server itself.
 
-* `config.action_controller.asset_path` takes a block which configures where assets can be found. Shorter version of `config.action_controller.asset_path`.
-
-* `config.action_controller.page_cache_directory` should be the document root for the web server and is set using `Base.page_cache_directory = "/document/root"`. For Rails, this directory has already been set to `Rails.public_path` (which is usually set to `Rails.root ` "/public"`). Changing this setting can be useful to avoid naming conflicts with files in `public/`, but doing so will likely require configuring your web server to look in the new location for cached files.
-
-* `config.action_controller.page_cache_extension` configures the extension used for cached pages saved to `page_cache_directory`. Defaults to `.html`.
-
 * `config.action_controller.perform_caching` configures whether the application should perform caching or not. Set to false in development mode, true in production.
+
+* `config.action_controller.default_static_extension` configures the extension used for cached pages. Defaults to `.html`.
 
 * `config.action_controller.default_charset` specifies the default character set for all renders. The default is "utf-8".
 
@@ -316,15 +298,13 @@ The schema dumper adds one additional configuration option:
 
 * `config.action_controller.request_forgery_protection_token` sets the token parameter name for RequestForgery. Calling `protect_from_forgery` sets it to `:authenticity_token` by default.
 
-* `config.action_controller.allow_forgery_protection` enables or disables CSRF protection. By default this is false in test mode and true in all other modes.
+* `config.action_controller.allow_forgery_protection` enables or disables CSRF protection. By default this is `false` in test mode and `true` in all other modes.
 
 * `config.action_controller.relative_url_root` can be used to tell Rails that you are deploying to a subdirectory. The default is `ENV['RAILS_RELATIVE_URL_ROOT']`.
 
-The caching code adds two additional settings:
+* `config.action_controller.permit_all_parameters` sets all the parameters for mass assignment to be permitted by default. The default value is `false`.
 
-* `ActionController::Base.page_cache_directory` sets the directory where Rails will create cached pages for your web server. The default is `Rails.public_path` (which is usually set to `Rails.root + "/public"`).
-
-* `ActionController::Base.page_cache_extension` sets the extension to be used when generating pages for the cache (this is ignored if the incoming request already has an extension). The default is `.html`.
+* `config.action_controller.raise_on_unpermitted_parameters` enables raising an exception if parameters that are not explicitly permitted are found. The default value is `true` in development and test environments, `false` otherwise.
 
 ### Configuring Action Dispatch
 
@@ -449,11 +429,6 @@ There are a number of settings available on `config.action_mailer`:
     config.action_mailer.interceptors = ["MailInterceptor"]
     ```
 
-* `config.action_mailer.queue` registers the queue that will be used to deliver the mail.
-```ruby
-config.action_mailer.queue = SomeQueue.new
-```
-
 ### Configuring Active Support
 
 There are a few configuration options available in Active Support:
@@ -464,7 +439,7 @@ There are a few configuration options available in Active Support:
 
 * `config.active_support.use_standard_json_time_format` enables or disables serializing dates to ISO 8601 format. Defaults to `true`.
 
-* `ActiveSupport::BufferedLogger.silencer` is set to `false` to disable the ability to silence logging in a block. The default is `true`.
+* `ActiveSupport::Logger.silencer` is set to `false` to disable the ability to silence logging in a block. The default is `true`.
 
 * `ActiveSupport::Cache::Store.logger` specifies the logger to use within cache store operations.
 
@@ -587,8 +562,6 @@ Some parts of Rails can also be configured externally by supplying environment v
 
 * `ENV["RAILS_RELATIVE_URL_ROOT"]` is used by the routing code to recognize URLs when you deploy your application to a subdirectory.
 
-* `ENV["RAILS_ASSET_ID"]` will override the default cache-busting timestamps that Rails generates for downloadable assets.
-
 * `ENV["RAILS_CACHE_ID"]` and `ENV["RAILS_APP_VERSION"]` are used to generate expanded cache keys in Rails' caching code. This allows you to have multiple separate caches from the same application.
 
 
@@ -612,7 +585,7 @@ Rails has 5 initialization events which can be hooked into (listed in the order 
 
 * `to_prepare`: Run after the initializers are run for all Railties (including the application itself), but before eager loading and the middleware stack is built. More importantly, will run upon every request in `development`, but only once (during boot-up) in `production` and `test`.
 
-* `before_eager_load`: This is run directly before eager loading occurs, which is the default behaviour for the `production` environment and not for the `development` environment.
+* `before_eager_load`: This is run directly before eager loading occurs, which is the default behavior for the `production` environment and not for the `development` environment.
 
 * `after_initialize`: Run directly after the initialization of the application, but before the application initializers are run.
 
@@ -636,7 +609,7 @@ Rails.application.config.before_initialize do
 end
 ```
 
-WARNING: Some parts of your application, notably observers and routing, are not yet set up at the point where the `after_initialize` block is called.
+WARNING: Some parts of your application, notably routing, are not yet set up at the point where the `after_initialize` block is called.
 
 ### `Rails::Railtie#initializer`
 
@@ -666,11 +639,11 @@ Below is a comprehensive list of all the initializers found in Rails in the orde
 
 * `load_active_support` Requires `active_support/dependencies` which sets up the basis for Active Support. Optionally requires `active_support/all` if `config.active_support.bare` is un-truthful, which is the default.
 
-* `initialize_logger` Initializes the logger (an `ActiveSupport::BufferedLogger` object) for the application and makes it accessible at `Rails.logger`, provided that no initializer inserted before this point has defined `Rails.logger`.
+* `initialize_logger` Initializes the logger (an `ActiveSupport::Logger` object) for the application and makes it accessible at `Rails.logger`, provided that no initializer inserted before this point has defined `Rails.logger`.
 
 * `initialize_cache` If `Rails.cache` isn't set yet, initializes the cache by referencing the value in `config.cache_store` and stores the outcome as `Rails.cache`. If this object responds to the `middleware` method, its middleware is inserted before `Rack::Runtime` in the middleware stack.
 
-* `set_clear_dependencies_hook` Provides a hook for `active_record.set_dispatch_hooks` to use, which will run before this initializer. This initializer -- which runs only if `cache_classes` is set to `false` -- uses `ActionDispatch::Callbacks.after` to remove the constants which have been referenced during the request from the object space so that they will be reloaded during the following request.
+* `set_clear_dependencies_hook` Provides a hook for `active_record.set_dispatch_hooks` to use, which will run before this initializer. This initializer — which runs only if `cache_classes` is set to `false` — uses `ActionDispatch::Callbacks.after` to remove the constants which have been referenced during the request from the object space so that they will be reloaded during the following request.
 
 * `initialize_dependency_mechanism` If `config.cache_classes` is true, configures `ActiveSupport::Dependencies.mechanism` to `require` dependencies rather than `load` them.
 
@@ -681,7 +654,7 @@ Below is a comprehensive list of all the initializers found in Rails in the orde
 * `active_support.initialize_whiny_nils` Requires `active_support/whiny_nil` if `config.whiny_nils` is true. This file will output errors such as:
 
     ```
-    Called id for nil, which would mistakenly be 4 -- if you really wanted the id of nil, use object_id
+    Called id for nil, which would mistakenly be 4 — if you really wanted the id of nil, use object_id
     ```
 
     And:
@@ -706,9 +679,9 @@ Below is a comprehensive list of all the initializers found in Rails in the orde
 
 * `action_view.set_configs` Sets up Action View by using the settings in `config.action_view` by `send`'ing the method names as setters to `ActionView::Base` and passing the values through.
 
-* `action_controller.logger` Sets `ActionController::Base.logger` -- if it's not already set -- to `Rails.logger`.
+* `action_controller.logger` Sets `ActionController::Base.logger` — if it's not already set — to `Rails.logger`.
 
-* `action_controller.initialize_framework_caches` Sets `ActionController::Base.cache_store` -- if it's not already set -- to `Rails.cache`.
+* `action_controller.initialize_framework_caches` Sets `ActionController::Base.cache_store` — if it's not already set — to `Rails.cache`.
 
 * `action_controller.set_configs` Sets up Action Controller by using the settings in `config.action_controller` by `send`'ing the method names as setters to `ActionController::Base` and passing the values through.
 
@@ -716,7 +689,7 @@ Below is a comprehensive list of all the initializers found in Rails in the orde
 
 * `active_record.initialize_timezone` Sets `ActiveRecord::Base.time_zone_aware_attributes` to true, as well as setting `ActiveRecord::Base.default_timezone` to UTC. When attributes are read from the database, they will be converted into the time zone specified by `Time.zone`.
 
-* `active_record.logger` Sets `ActiveRecord::Base.logger` -- if it's not already set -- to `Rails.logger`.
+* `active_record.logger` Sets `ActiveRecord::Base.logger` — if it's not already set — to `Rails.logger`.
 
 * `active_record.set_configs` Sets up Active Record by using the settings in `config.active_record` by `send`'ing the method names as setters to `ActiveRecord::Base` and passing the values through.
 
@@ -726,7 +699,7 @@ Below is a comprehensive list of all the initializers found in Rails in the orde
 
 * `active_record.set_dispatch_hooks` Resets all reloadable connections to the database if `config.cache_classes` is set to `false`.
 
-* `action_mailer.logger` Sets `ActionMailer::Base.logger` -- if it's not already set -- to `Rails.logger`.
+* `action_mailer.logger` Sets `ActionMailer::Base.logger` — if it's not already set — to `Rails.logger`.
 
 * `action_mailer.set_configs` Sets up Action Mailer by using the settings in `config.action_mailer` by `send`'ing the method names as setters to `ActionMailer::Base` and passing the values through.
 

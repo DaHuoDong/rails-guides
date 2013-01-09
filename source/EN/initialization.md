@@ -4,7 +4,9 @@ The Rails Initialization Process
 This guide explains the internals of the initialization process in Rails
 as of Rails 4. It is an extremely in-depth guide and recommended for advanced Rails developers.
 
-* Using `rails server`
+After reading this guide, you will know:
+
+* How to use `rails server`.
 
 --------------------------------------------------------------------------------
 
@@ -367,7 +369,7 @@ on your needs.
 
 ### `Rails::Server#start`
 
-After `congif/application` is loaded, `server.start` is called. This method is defined like this:
+After `config/application` is loaded, `server.start` is called. This method is defined like this:
 
 ```ruby
 def start
@@ -534,7 +536,7 @@ require "rails"
     action_controller
     action_mailer
     rails/test_unit
-    sprockets/rails
+    sprockets
 ).each do |framework|
   begin
     require "#{framework}/railtie"
