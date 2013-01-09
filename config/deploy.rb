@@ -1,5 +1,5 @@
 set :application, "Rails Guides"
-set :domain, "play.beansmile.com"
+set :domain, "rails-guides.beansmile.com"
 set :use_sudo, false
 set :user, "deploy"
 set :repository,  "./output"
@@ -10,14 +10,14 @@ role :web, domain
 role :app, domain
 role :db,  domain, :primary => true 
 
-set :deploy_to, "/var/www/rails_guides"
+set :deploy_to, "/var/www/rails-guides"
 set :deploy_via, :copy
 
 
 namespace :local do
   task :generate_guides do
     print "generate the lastest guides"
-    system "rake generate_guides_CN RAILS_VERSION=#{version}  "
+    system "rake generate_guides_CN"
   end
 end
 
