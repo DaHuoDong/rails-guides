@@ -64,7 +64,7 @@ end
 h3. 关联的类型
 
 在 Rails 中，一个 _关联_ 是指两个 models 的建立的某种关系。这些关联是通过添加 <tt>macro_style</tt> 的方法实现的，所以你可以通过声明为 models 添加新的特性。例如，通过声明一个 model belongs_to 另外一个model
-
+testing!!!!
 
 
 
